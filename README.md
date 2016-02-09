@@ -12,16 +12,16 @@ Your Github Pages repo will be cloned to **test-pages/repo** allowing you to edi
 ## Usage
 Clone this repository:
 ```
-  git clone https://github.com/modulusx/test-pages.git
+git clone https://github.com/modulusx/test-pages.git
 ```
 Create an environment variable **GHP_REPO** containing the linke to your repository (in my case):
 ```
-  export GHP_REPO=https://github.com/modulusx/modulusx.github.io.git
+export GHP_REPO=https://github.com/modulusx/modulusx.github.io.git
 ```
 Start the VM and let it provision, this might take a while:
 ```
-  cd test-pages
-  vagrant up
+cd test-pages
+vagrant up
 ```
 The last step in the Ansible playbook will clone your repo, if you've forgotten to set the **GHP_REPO** environment variable prior to running vagrant up, don't fret, you can simply **vagrant halt** the VM, set **GHP_REPO**, and run **vagrant provision** after setting the variable.
 After it finishes, you should see output similar to:
@@ -45,11 +45,8 @@ After jekyll is runnng, you will see updated output each time it regenerates the
 ==> default:       Regenerating: 1 file(s) changed at 2016-02-09 18:17:40 
 ==> default: ...done in 0.165030546 seconds.
 ```
-If you don't want to leave the terminal open with garbage scrolling on it, just hit Ctrl-C twice to disconnect from the Vagrant box with an ominous warning message:
-```
-^C==> default: Waiting for cleanup before exiting...
-^C==> default: Exiting immediately, without cleanup!
-```
+
+When you're all done, just hit **Ctrl-C** twice to kill the connection to Jekyll, then **vagrant halt** to stop the VM. The repo will remain on your system and you can start authoring again with **vagrant up**.
 ## Vagrant tips
 Vagrant is pretty easy to work with, here are some common commands.
 To verify that a VM is running:
