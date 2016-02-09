@@ -1,0 +1,60 @@
+---
+- hosts: all
+  become: yes
+  become_method: sudo
+  vars:
+    ruby_major_version: 2.3
+    ruby_version: 2.3.0
+    ruby_sha256: ba5ba60e5f1aa21b4ef8e9bf35b9ddb57286cb546aac4b5a28c71f459467e507
+    ghp_repo: "{{ lookup('env','GHP_REPO') }}"
+
+  tasks:
+    - name: Running apt-get update
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Installing packages required for Github Pages
+      apt: pkg={{ item }} state=latest
+      with_items:
+        - build-essential
+        - libffi-dev
+        - zlib1g-dev
+        - libssl-dev
+        - libreadline6-dev
+        - git
+
+    - name: Downloading Ruby {{ ruby_version }}
+      get_url:
+        url: https://cache.ruby-lang.org/pub/ruby/{{ ruby_major_version }}/ruby-{{ ruby_version }}.tar.gz
+        dest: /usr/local/src/ruby-{{ ruby_version }}.tar.gz
+        checksum: sha256:{{ ruby_sha256 }}
+
+    - name: Unarchiving Ruby
+      unarchive:
+        src: /usr/local/src/ruby-{{ ruby_version }}.tar.gz
+        dest: /usr/local/src
+        creates: /usr/local/src/ruby-{{ ruby_version }}
+        copy: no
+
+    - name: Configuring Ruby
+      command: ./configure
+      args:
+        chdir: /usr/local/src/ruby-{{ ruby_version }}
+        creates: Makefile
+
+    - name: Compiling Ruby
+      command: make
+      args:
+        chdir: /usr/local/src/ruby-{{ ruby_version }}
+        creates: ruby
+
+    - name: Installing Ruby
+      command: make install
+      args:
+        chdir: /usr/local/src/ruby-{{ ruby_version }}
+
+    - name: Installing github-pages gem
+      command: gem install github-pages
+
+    - name: Cloning repo defined in Environment Variable - GHP_REPO
+      git: repo={{ ghp_repo }} dest=/tmp/ghp/src/
+      when: not (ghp_repo is undefined or ghp_repo is none or ghp_repo | trim == '')
